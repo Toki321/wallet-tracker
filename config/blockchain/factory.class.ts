@@ -1,3 +1,4 @@
+import { eventsAbi } from "../../src/static/events.abi";
 import { ConfigService } from "../config.service";
 import { AbstractNotifyConfig, IBlockchainConfigFactory } from "./interfaces";
 import { NotifyMainnetConfig } from "./notify-configs/mainnet.class";

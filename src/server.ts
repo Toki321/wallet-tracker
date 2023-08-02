@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import { ConfigService } from "../config/config.service";
+import { Receiver } from "./receive-endpoint/receiveNotificationHandler.class";
 
 const configService = ConfigService.getInstance();
 
@@ -12,7 +13,6 @@ const app = express();
 const StartServer = () => {
   console.log(`Starting server...`);
   console.log(`NODE_ENV:`, process.env.NODE_ENV);
-  console.log(`FRONTEND_URL:`, process.env.FRONTEND_URL);
 
   const corsOptions = {
     origin: "*",
@@ -26,7 +26,15 @@ const StartServer = () => {
   app.use(cookieParser());
 
   /**Routes */
-  app.post("/receiveHook", (req: Request, res: Response) => {});
+  app.post("/receiveHook", async (req: Request, res: Response) => {
+    const transaction = req.body.event.activity[0];
+    console.log("\nreq.body.event.activity[0]:\n", transaction);
+
+    const receiver = new Receiver();
+    await receiver.handleReceiveNotification(transaction);
+
+    res.status(200).json({ message: "ok" });
+  });
 
   /**Healthcheck */
   app.get("/api/v1/ping", (req, res) => res.status(200).json({ message: "pong" }));
