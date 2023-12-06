@@ -6,7 +6,7 @@ import cors from "cors";
 import { DotenvConfig } from "../config/env.config";
 import { Receiver } from "./receive-endpoint/receiveNotificationHandler.class";
 
-const DotenvConfig = DotenvConfig.getInstance();
+const envConfig = DotenvConfig.getInstance();
 
 const app = express();
 
@@ -47,9 +47,7 @@ const StartServer = () => {
 
   http
     .createServer(app)
-    .listen(DotenvConfig.get("SERVER_PORT"), () =>
-      console.log(`Server running on port ${DotenvConfig.get("SERVER_PORT")}`)
-    );
+    .listen(envConfig.get("SERVER_PORT"), () => console.log(`Server running on port ${envConfig.get("SERVER_PORT")}`));
 };
 
 StartServer();

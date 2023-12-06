@@ -10,8 +10,9 @@ export class NotifyConfig {
   private WEBHOOK_ID: string;
   private ethersProvider: ethers.providers.JsonRpcProvider;
   private alchemySDK: Alchemy;
+  public static instance: NotifyConfig;
 
-  protected constructor() {
+  private constructor() {
     this.BASE_URL = envConfig.get("NOTIFY_BASE_URL");
     this.WEBHOOK_ID = envConfig.get("WEBHOOK_ID");
 
@@ -19,7 +20,7 @@ export class NotifyConfig {
     this.ethersProvider = new ethers.providers.JsonRpcProvider(url);
 
     const network = envConfig.get("BLOCKCHAIN_NETWORK");
-    const notifyToken = envConfig.get("ALCHEMY_NOTIFY_TOKEN");
+    const notifyToken = envConfig.get("ALCHEMY_TOKEN");
 
     if (network === "sepolia") {
       this.alchemySDK = new Alchemy({
@@ -52,5 +53,12 @@ export class NotifyConfig {
 
   public getWebhookId(): string {
     return this.WEBHOOK_ID;
+  }
+
+  public static getInstance(): NotifyConfig {
+    if (!NotifyConfig.instance) {
+      NotifyConfig.instance = new NotifyConfig();
+    }
+    return NotifyConfig.instance;
   }
 }
