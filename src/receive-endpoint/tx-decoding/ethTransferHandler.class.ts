@@ -3,9 +3,9 @@ import { TransactionRecord } from "../record.class";
 import { IRecordETH, TYPE } from "../interfaces";
 
 import { TokenInfoFetcher } from "./tokenInfoFetcher.class";
-import { ConfigService } from "../../../config/config.service";
+import { DotenvConfig } from "../../../config/env.config";
 
-const NATIVE_WRAPPED_TOKEN_ADDRESS = ConfigService.getInstance().get("NATIVE_WRAPPED_TOKEN_ADDRESS");
+const NATIVE_WRAPPED_TOKEN_ADDRESS = DotenvConfig.getInstance().get("NATIVE_WRAPPED_TOKEN_ADDRESS");
 
 export class ETHTransferHandler {
   ethersTx: ethers.Transaction;

@@ -8,5 +8,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "config", "utils/**/*"]
+  "include": ["src/**/*", "config", "utils/**/*", "static"]
 }

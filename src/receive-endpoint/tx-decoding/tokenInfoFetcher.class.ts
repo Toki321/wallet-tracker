@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { IERC20 } from "../interfaces";
 import axios from "axios";
-import { ConfigService } from "../../../config/config.service";
+import { DotenvConfig } from "../../../config/env.config";
 
 import bigDecimal from "js-big-decimal";
 import { BlockchainConfigFactory } from "../../../config/blockchain/factory.class";
@@ -86,7 +86,7 @@ export class TokenInfoFetcher {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-api-key": ConfigService.getInstance().get("DEFINEDFI_API_KEY"),
+            "x-api-key": DotenvConfig.getInstance().get("DEFINEDFI_API_KEY"),
           },
         }
       );

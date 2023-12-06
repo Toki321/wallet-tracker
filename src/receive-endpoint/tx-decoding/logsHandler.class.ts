@@ -5,9 +5,9 @@ import { IRecordERC20, IERC20, LogInfo, TYPE, IRecordETH } from "../interfaces";
 import { TokenInfoFetcher } from "./tokenInfoFetcher.class";
 import { TransactionRecord } from "../record.class";
 import { BlockchainConfigFactory } from "../../../config/blockchain/factory.class";
-import { ConfigService } from "../../../config/config.service";
+import { DotenvConfig } from "../../../config/env.config";
 
-const NATIVE_WRAPPED_TOKEN_ADDRESS = ConfigService.getInstance().get("NATIVE_WRAPPED_TOKEN_ADDRESS");
+const NATIVE_WRAPPED_TOKEN_ADDRESS = DotenvConfig.getInstance().get("NATIVE_WRAPPED_TOKEN_ADDRESS");
 
 const notifyConfig = BlockchainConfigFactory.getInstance().NOTIFY_CONFIG;
 

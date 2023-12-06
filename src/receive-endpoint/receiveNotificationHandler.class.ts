@@ -5,9 +5,9 @@ import { LogsHandler } from "./tx-decoding/logsHandler.class";
 import { TransactionRecord } from "./record.class";
 import { ETHTransferHandler } from "./tx-decoding/ethTransferHandler.class";
 import { BlockchainConfigFactory } from "../../config/blockchain/factory.class";
-import { ConfigService } from "../../config/config.service";
+import { DotenvConfig } from "../../config/env.config";
 
-const configEnv = ConfigService.getInstance();
+const configEnv = DotenvConfig.getInstance();
 const configFactory = BlockchainConfigFactory.getInstance();
 const notifyConfig = configFactory.NOTIFY_CONFIG;
 const provider = notifyConfig.getProvider();

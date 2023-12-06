@@ -1,9 +1,9 @@
 import axios from "axios";
 import { TransactionRecord } from "../record.class";
 import { MessageCreator } from "./message-creation/msg-creator.class";
-import { ConfigService } from "../../../config/config.service";
+import { DotenvConfig } from "../../../config/env.config";
 
-const configService = ConfigService.getInstance();
+const DotenvConfig = DotenvConfig.getInstance();
 
 export class TelegramMessenger {
   private chatIds: number[];
@@ -26,7 +26,7 @@ export class TelegramMessenger {
 
   private async postToChat(chatId: number, message: string) {
     try {
-      axios.post(`https://api.telegram.org/bot${configService.get("BOT_TOKEN")}/sendMessage`, {
+      axios.post(`https://api.telegram.org/bot${DotenvConfig.get("BOT_TOKEN")}/sendMessage`, {
         chat_id: chatId,
         text: message,
       });
