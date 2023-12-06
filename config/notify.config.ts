@@ -6,14 +6,12 @@ import { Alchemy, Network } from "alchemy-sdk";
 const envConfig = DotenvConfig.getInstance();
 
 export class NotifyConfig {
-  private BASE_URL: string;
   private WEBHOOK_ID: string;
   private ethersProvider: ethers.providers.JsonRpcProvider;
   private alchemySDK: Alchemy;
   public static instance: NotifyConfig;
 
   private constructor() {
-    this.BASE_URL = envConfig.get("NOTIFY_BASE_URL");
     this.WEBHOOK_ID = envConfig.get("WEBHOOK_ID");
 
     const url = envConfig.get("ETHERS_RPC_URL");
@@ -45,10 +43,6 @@ export class NotifyConfig {
 
   public getAbiForDecodingLogs(): string[] {
     return eventsAbi;
-  }
-
-  public getBaseUrl(): string {
-    return this.BASE_URL;
   }
 
   public getWebhookId(): string {
