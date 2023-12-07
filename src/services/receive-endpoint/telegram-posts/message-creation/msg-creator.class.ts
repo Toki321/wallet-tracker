@@ -8,7 +8,7 @@ const sendStrategy = new SendStrategy();
 const receiveStrategy = new ReceiveStrategy();
 
 export class MessageCreator {
-  private strategy!: MessageStrategy; // strategy pattern
+  private strategy!: MessageStrategy;
   private record: TransactionRecord;
   private msgTypes: TypeDependantMessage[];
 

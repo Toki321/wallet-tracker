@@ -40,6 +40,4 @@ export class TransactionRecord {
   setDeployedContractAddress(address: string): void {
     this.deployedContractAddress = address;
   }
-
-  // combinePartialERC20Transfers(): void {}
 }

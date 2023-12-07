@@ -4,8 +4,8 @@ import { EthErc20RecordBuilder } from "../record-building/events-builder.class";
 import { LogInfo, TxTYPE } from "../utils/interfaces";
 import { TxTypeDeciderFromEvents } from "../transaction-type-deciding/events-part.class";
 import { LogsDecoder } from "../utils/logs-decoder.class";
-import Logger from "../../../../utils/logger/winston-logger";
-import { DbOperationFailed } from "../../../../utils/errors/operation-failed";
+import Logger from "../../../utils/logger/winston-logger";
+import { DbOperationFailed } from "../../../utils/errors/operation-failed";
 
 // a tx with events, also has a non-events part so we need to handle that too, hence we extend NoEventsTxHandler
 //todo refactor this. favor composition over inheritance

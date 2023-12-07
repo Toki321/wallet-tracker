@@ -6,11 +6,20 @@ import { DotenvConfig } from "../../../config/env.config";
 const envConfig = DotenvConfig.getInstance();
 
 const clientEmail = envConfig.get("CLIENT_EMAIL");
+const privKey = envConfig.get("GOOGLE_PRIVATE_KEY");
 const spreadsheetId = envConfig.get("SPREADSHEET_ID");
 
-const sheets = google.sheets({ version: "v4", auth: clientEmail });
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: clientEmail,
+    private_key: privKey,
+  },
+  scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+});
 
-export async function fetchTradersFromSheet() {
+const sheets = google.sheets({ version: "v4", auth: auth });
+
+export async function fetchTradersFromSheet(): Promise<ITraderInfo[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: spreadsheetId,
@@ -24,10 +33,12 @@ export async function fetchTradersFromSheet() {
 
     // Convert rows to ITraderInfo[]
     const traders: ITraderInfo[] = rows.map(([name, address]) => ({ name, address }));
+    traders.reverse();
+    traders.pop();
     return traders;
   } catch (err) {
-    console.error("The API returned an error: " + err);
-    throw err;
+    console.log(err);
+    return [];
   }
 }
 

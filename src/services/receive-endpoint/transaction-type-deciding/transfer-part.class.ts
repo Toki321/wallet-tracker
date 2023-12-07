@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { ContractCreation, TransferETH, TypeCheckerTransfer } from "./strategies/transfer-strategies.class";
 import { TxTYPE } from "../utils/interfaces";
-import Logger from "../../../../utils/logger/winston-logger";
+import Logger from "../../../utils/logger/winston-logger";
 
 // decides Type of tx from non-events part, which is the eth transfer
 export class TxTypeDeciderFromTransfer {

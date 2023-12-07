@@ -36,3 +36,21 @@ export class ContractCreationMessage extends TypeDependantMessage {
     return "";
   }
 }
+
+export class SwapMessage extends TypeDependantMessage {
+  getMessage(record: TransactionRecord): string {
+    if (record.type == TxTYPE.swap) {
+      const contractAddress = TextFormatter.getMonoSpace();
+
+      // if it sends ETH it means a BUY
+
+      // if it receives ETH it is a SELL
+      for (const erc20Record of record.ERC20Records) {
+      }
+
+      return `\nHas deployed a contract at ${contractAddress}`;
+    }
+
+    return "";
+  }
+}

@@ -11,3 +11,6 @@ sessions.json
 .env.development.local
 .env.test.local
 .env.production.local
+
+spreadsheet-key.json
+spreadsheet-key

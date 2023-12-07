@@ -5,10 +5,25 @@ import compression from "compression";
 import cors from "cors";
 import { DotenvConfig } from "../config/env.config";
 import { Receiver } from "./services/receive-endpoint/receiver.service";
+import mongoose from "mongoose";
+import Logger from "./utils/logger/winston-logger";
 
 const envConfig = DotenvConfig.getInstance();
 
 const app = express();
+
+// autoIndex should be set to false in production? (see mongoose docs)
+console.log(`Connecting to ${envConfig.get("MONGO_URL")}`);
+mongoose
+  .connect(envConfig.get("MONGO_URL"))
+  .then(() => {
+    Logger.info("Connected to mongoDB");
+    StartServer();
+  })
+  .catch((error) => {
+    Logger.error("Unable to connect: ");
+    Logger.error(error);
+  });
 
 const StartServer = () => {
   console.log(`Starting server...`);
@@ -49,5 +64,3 @@ const StartServer = () => {
     .createServer(app)
     .listen(envConfig.get("SERVER_PORT"), () => console.log(`Server running on port ${envConfig.get("SERVER_PORT")}`));
 };
-
-StartServer();
