@@ -32,4 +32,21 @@ export class AlchemyHandler {
       console.error("Error from addAddressesForTracking:\n", err);
     }
   }
+
+  public static async removeAddressesForTracking(traders: ITraderInfo[]): Promise<void> {
+    try {
+      // remove each trader from the database
+      for (const trader of traders) {
+        await TraderModel.deleteOne({ name: trader.name });
+      }
+
+      // remove the addresses from webhook, to stop getting tracked
+      const addresses = traders.map((trader) => trader.address);
+      await this.alchemyNotifySDK.notify.updateWebhook(this.webhookId, {
+        removeAddresses: addresses,
+      });
+    } catch (err: any) {
+      console.error("Error from addAddressesForTracking:\n", err);
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { TxTYPE } from "../../utils/interfaces";
 import { NotifyConfig } from "../../../../../config/notify.config";
-import Logger from "../../../../../utils/logger/winston-logger";
+import Logger from "../../../../utils/logger/winston-logger";
 
 const provider = NotifyConfig.getInstance().getProvider();
 

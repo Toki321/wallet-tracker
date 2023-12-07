@@ -1,4 +1,5 @@
 import { TraderModel } from "../../db/notify.model";
+import { AlchemyHandler } from "./alchemy.class";
 import { fetchTradersFromSheet } from "./google-sheet";
 import { ITraderInfo } from "./interfaces";
 
@@ -14,10 +15,7 @@ const main = async () => {
     }
   }
 
-  for (const trader of newTraders) {
-    const saveTrader = new TraderModel({ name: trader.name, address: trader.address });
-    await saveTrader.save();
-  }
+  await AlchemyHandler.addAddressesForTracking(newTraders);
 
   const tradersFromDB = await TraderModel.find({}).exec();
   const deletedTraders = [];
@@ -29,8 +27,11 @@ const main = async () => {
 
   for (const trader of tradersFromDB) {
     const formSpreadsheet = map.get(trader.name);
+    // if NOT in spreadsheet but IN db. DELETE.
     if (formSpreadsheet == null) {
-      // delete from db because at this point all from spreadsheet should be in db. if it's in db and not in spreadsheet DELET
+      deletedTraders.push(trader);
     }
   }
+
+  await AlchemyHandler.removeAddressesForTracking(deletedTraders);
 };

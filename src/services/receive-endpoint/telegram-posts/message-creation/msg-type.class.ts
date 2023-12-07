@@ -1,7 +1,7 @@
 import { TransactionRecord } from "../../record-building/record.class";
 import { TextFormatter } from "../../utils/format-text.class";
 import { IRecordApproval, TxTYPE } from "../../utils/interfaces";
-import Logger from "../../../../../utils/logger/winston-logger";
+import Logger from "../../../../utils/logger/winston-logger";
 
 export abstract class TypeDependantMessage {
   abstract getMessage(record: TransactionRecord): string;

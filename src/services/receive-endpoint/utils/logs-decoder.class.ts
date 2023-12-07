@@ -1,7 +1,7 @@
 import { providers, utils } from "ethers";
 import { LogInfo } from "./interfaces";
-import Logger from "../../../../utils/logger/winston-logger";
 import { NotifyConfig } from "../../../../config/notify.config";
+import Logger from "../../../utils/logger/winston-logger";
 
 const notifyConfig = NotifyConfig.getInstance();
 

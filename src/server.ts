@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import { DotenvConfig } from "../config/env.config";
-import { Receiver } from "./notify-services/receive-endpoint/receiver.service"; // new one
+import { Receiver } from "./services/receive-endpoint/receiver.service";
 
 const envConfig = DotenvConfig.getInstance();
 

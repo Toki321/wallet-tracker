@@ -3,7 +3,7 @@ import { providers } from "ethers";
 import { NoEventsTxHandler } from "./handlers/no-events-handler.class";
 import { EventsTxHandler } from "./handlers/events-handler.class";
 import { NotifyConfig } from "../../../config/notify.config";
-import Logger from "../../../utils/logger/winston-logger";
+import Logger from "../../utils/logger/winston-logger";
 
 const provider = NotifyConfig.getInstance().getProvider();
 
