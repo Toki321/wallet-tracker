@@ -1,4 +1,5 @@
 import { TraderModel } from "../../db/notify.model";
+import * as schedule from "node-schedule";
 import { AlchemyHandler } from "./alchemy.class";
 import { fetchTradersFromSheet } from "./google-sheet";
 
@@ -42,4 +43,13 @@ export const main = async () => {
   console.log("deletarr:", deletedTraders);
   await AlchemyHandler.removeAddressesForTracking(deletedTraders);
   console.log("gg");
+};
+
+export const schedulesChecks = () => {
+  console.log("Starting scheduled job..");
+  schedule.scheduleJob("*/1 * * * *", async function () {
+    main()
+      .then()
+      .catch((err) => console.error(err));
+  });
 };

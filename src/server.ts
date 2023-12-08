@@ -7,6 +7,7 @@ import { DotenvConfig } from "../config/env.config";
 import { Receiver } from "./services/receive-endpoint/receiver.service";
 import mongoose from "mongoose";
 import Logger from "./utils/logger/winston-logger";
+import { schedulesChecks } from "./services/notification-control/notif.service";
 
 const envConfig = DotenvConfig.getInstance();
 
@@ -24,6 +25,12 @@ mongoose
     Logger.error("Unable to connect: ");
     Logger.error(error);
   });
+
+try {
+  schedulesChecks();
+} catch (err: unknown) {
+  console.error("Error occured in the scheduled job:", err);
+}
 
 const StartServer = () => {
   console.log(`Starting server...`);
@@ -57,7 +64,7 @@ const StartServer = () => {
   /** Error handling */
   app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(error); // Log error stack trace to the console
-    res.status(500).json({ message: "An internal error occurred!" });
+    res.status(500).json({ message: "Error has occured.." });
   });
 
   http

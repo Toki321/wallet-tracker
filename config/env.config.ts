@@ -12,8 +12,7 @@ export class DotenvConfig implements IDotenvConfig {
   private constructor() {
     let error, parsed;
     console.log("NODE_ENV:", process.env.NODE_ENV);
-    if (false) {
-      // if (process.env.NODE_ENV !== "development") {
+    if (process.env.NODE_ENV !== "development") {
       const res = dotenv.config();
       error = res.error;
       parsed = res.parsed;

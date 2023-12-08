@@ -41,10 +41,3 @@ export async function fetchTradersFromSheet(): Promise<ITraderInfo[]> {
     return [];
   }
 }
-
-// schedule.scheduleJob("*/15 * * * *", async function () {
-//   console.log("Fetching traders data from Google Sheets...");
-//   const traders = await fetchTradersFromSheet();
-//   console.log("Traders Data:", traders);
-//   // Additional logic for traders data can be added here
-// });
