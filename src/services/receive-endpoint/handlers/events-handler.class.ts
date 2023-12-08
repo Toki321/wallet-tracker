@@ -6,6 +6,7 @@ import { TxTypeDeciderFromEvents } from "../transaction-type-deciding/events-par
 import { LogsDecoder } from "../utils/logs-decoder.class";
 import Logger from "../../../utils/logger/winston-logger";
 import { DbOperationFailed } from "../../../utils/errors/operation-failed";
+import { TraderModel } from "../../../db/notify.model";
 
 // a tx with events, also has a non-events part so we need to handle that too, hence we extend NoEventsTxHandler
 //todo refactor this. favor composition over inheritance
@@ -40,6 +41,9 @@ export class EventsTxHandler extends NoEventsTxHandler {
         trackedEOA = await this.getTrackedEOAFromEvents(decodedLogs);
       }
       this.record.setTrackedEOA(trackedEOA);
+      const trader = await TraderModel.findOne({ address: trackedEOA }).exec();
+      if (!trader) throw new Error("There is no trader with that EOA");
+      this.record.setName(trader.name);
 
       await this.buildRecordFromEvents(trackedEOA, decodedLogs);
 

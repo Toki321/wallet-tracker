@@ -58,6 +58,7 @@ export class TxTypeDeciderFromEvents extends TxTypeDeciderFromTransfer {
     const logs = this.receipt.logs;
     for (const log of logs) {
       this.type = checker.checkType(log);
+      if (this.type !== TxTYPE.undetermined) return;
     }
   }
 

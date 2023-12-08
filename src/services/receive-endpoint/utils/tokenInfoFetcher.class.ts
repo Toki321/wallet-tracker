@@ -120,6 +120,31 @@ export class TokenInfoFetcher {
 
     return amountUsd.round(1).getValue();
   }
+
+  async getHoldings(address: string): Promise<number | undefined> {
+    try {
+      console.log(`Fetching holdings for address: ${address}`);
+
+      const holdings: BigNumber = await this.tokenContract.balanceOf(address);
+      console.log(`Raw holdings: ${holdings.toString()}`);
+
+      const decimals = await this.tokenContract.decimals();
+      console.log(`Token decimals: ${decimals}`);
+
+      const numHoldings = ethers.utils.formatUnits(holdings, decimals);
+      console.log(`Formatted holdings: ${numHoldings}`);
+
+      const fixed = Number(numHoldings).toFixed(4);
+      console.log(`Fixed holdings: ${fixed}`);
+
+      const parsedHoldings = Number(fixed);
+      console.log(`Parsed holdings: ${parsedHoldings}`);
+
+      return parsedHoldings;
+    } catch (err) {
+      console.error("Could not fetch holdings amount:", err);
+    }
+  }
 }
 
 // const fetcher = new TokenInfoFetcher('0xdAC17F958D2ee523a2206206994597C13D831ec7'); // uniswap

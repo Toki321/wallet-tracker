@@ -6,6 +6,7 @@ import { TelegramMessenger } from "../telegram-posts/messenger.class";
 import { TxTypeDeciderFromTransfer } from "../transaction-type-deciding/transfer-part.class";
 import { IUserNotify, TxTYPE } from "../utils/interfaces";
 import { DbOperationFailed } from "../../../utils/errors/operation-failed";
+import { TraderModel } from "../../../db/notify.model";
 
 export class NoEventsTxHandler {
   protected tx: ethers.Transaction;
@@ -38,6 +39,9 @@ export class NoEventsTxHandler {
       console.log("trackedEOA found in from or to:", trackedEOA);
 
       this.record.setTrackedEOA(trackedEOA);
+      const trader = await TraderModel.findOne({ address: trackedEOA }).exec();
+      if (!trader) throw new Error("There is no trader with that EOA");
+      this.record.setName(trader.name);
 
       if (this.txType == TxTYPE.contractCreation) {
         this.record.setDeployedContractAddress(this.receipt.contractAddress);

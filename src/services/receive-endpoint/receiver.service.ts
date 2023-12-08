@@ -46,7 +46,7 @@ export class Receiver {
   }
 
   private doLogsExist(receipt: providers.TransactionReceipt): boolean {
-    if (receipt.logs.length == 0) {
+    if (!receipt || receipt.logs.length == 0) {
       return false;
     }
     return true;

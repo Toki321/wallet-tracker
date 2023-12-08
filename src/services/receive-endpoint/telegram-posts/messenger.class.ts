@@ -19,7 +19,7 @@ export class TelegramMessenger {
   }
 
   async notifyTelegram(): Promise<void> {
-    const message = this.messageCreator.formulateFinalMessage();
+    const message = await this.messageCreator.formulateFinalMessage();
     if (!message) {
       console.log("Nothing of interest was found in the tx made");
       return;
@@ -39,7 +39,7 @@ export class TelegramMessenger {
         })
       );
     } catch (err: any) {
-      console.log(`Error while sending message to chatId ${chatId}:`, err.response.data);
+      console.log(`Error while sending message to chatId ${chatId}:`, err);
     }
   }
 }

@@ -41,7 +41,7 @@ const StartServer = () => {
   app.use(cookieParser());
 
   /**Routes */
-  app.post("/receiveHook", async (req: Request, res: Response) => {
+  app.post("/api/v1/notify/receiveNotification", async (req: Request, res: Response) => {
     const transaction = req.body.event.activity[0];
     console.log("\nreq.body.event.activity[0]:\n", transaction);
 

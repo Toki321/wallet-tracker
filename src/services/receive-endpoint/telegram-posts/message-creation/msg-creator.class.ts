@@ -1,7 +1,7 @@
 import { IRecordERC20, IRecordETH, MessageStrategy, TYPE } from "../../utils/interfaces";
 import { TransactionRecord } from "../../record-building/record.class";
 import { ReceiveStrategy, SendStrategy } from "./send-receive.class";
-import { ApprovalMessage, ContractCreationMessage, TypeDependantMessage } from "./msg-type.class";
+import { ApprovalMessage, ContractCreationMessage, SwapMessage, TypeDependantMessage } from "./msg-type.class";
 import { TextFormatter } from "../../utils/format-text.class";
 
 const sendStrategy = new SendStrategy();
@@ -14,13 +14,13 @@ export class MessageCreator {
 
   constructor(record: TransactionRecord) {
     this.record = record;
-    this.msgTypes = [new ApprovalMessage(), new ContractCreationMessage()];
+    this.msgTypes = [new SwapMessage(), new ApprovalMessage(), new ContractCreationMessage()];
   }
 
-  public formulateFinalMessage(): string | undefined {
+  public async formulateFinalMessage(): Promise<string | undefined> {
     let message = "";
     for (const msgType of this.msgTypes) {
-      message = msgType.getMessage(this.record);
+      message = await msgType.getMessage(this.record);
 
       if (message != "") break;
     }
@@ -31,12 +31,15 @@ export class MessageCreator {
         message = messages.join("\n");
       }
     }
+    // 🟢🔴
 
     const walletAddress = TextFormatter.getMonoSpace(this.record.trackedEOA);
+    const name = TextFormatter.getNameHyperLinkNotify(this.record.name, this.record.trackedEOA);
     const txType = TextFormatter.getBold(this.record.type);
     const txHash = TextFormatter.getTxHashHyperLinkNotify(this.record.txHash);
 
-    const finalMessage = `Wallet: ${walletAddress}\n` + message + `\n\nTransaction Type: ${txType} \n\n${txHash}`;
+    const finalMessage =
+      `Name: ${name}\nWallet: ${walletAddress}\n` + message + `\n\nTransaction Type: ${txType} \n\n${txHash}`;
     return finalMessage;
   }
 

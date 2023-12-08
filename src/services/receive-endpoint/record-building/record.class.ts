@@ -10,6 +10,7 @@ export class TransactionRecord {
   ApprovalRecord?: IRecordApproval;
   txHash?: string;
   trackedEOA!: string;
+  name!: string;
   type: TxTYPE = TxTYPE.undetermined;
   deployedContractAddress?: string;
 
@@ -27,6 +28,10 @@ export class TransactionRecord {
 
   setTrackedEOA(trackedEOA: string) {
     this.trackedEOA = trackedEOA;
+  }
+
+  setName(name: string) {
+    this.name = name;
   }
 
   setType(type: TxTYPE) {
