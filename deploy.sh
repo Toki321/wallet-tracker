@@ -8,16 +8,13 @@ git pull
 echo "Installing dependencies..."
 npm install
 
-# Build the app
-echo "Building the app..."
-npm run build
-
-# Restart the pm2 process
-echo "Restarting the pm2 process..."
-pm2 restart wallet-tracker
+# Build and Start the pm2 process
+echo "Building app and starting the pm2 process..."
+npm run start:prod
 
 # Save the pm2 process list to ensure it's restarted automatically on server reboot
 echo "Saving the pm2 process list..."
 pm2 save
 
-echo "Restart complete!"
+echo "Deployment complete!"
+
