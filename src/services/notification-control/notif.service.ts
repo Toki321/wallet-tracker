@@ -47,7 +47,7 @@ export const main = async () => {
 
 export const schedulesChecks = () => {
   console.log("Starting scheduled job..");
-  schedule.scheduleJob("*/5 * * * *", async function () {
+  schedule.scheduleJob("*/10* * * *", async function () {
     main()
       .then()
       .catch((err) => console.error(err));

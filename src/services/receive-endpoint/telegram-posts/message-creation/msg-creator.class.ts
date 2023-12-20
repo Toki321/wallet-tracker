@@ -35,12 +35,16 @@ export class MessageCreator {
 
     const walletAddress = TextFormatter.getMonoSpace(this.record.trackedEOA);
     const name = TextFormatter.getNameHyperLinkNotify(this.record.name, this.record.trackedEOA);
-    const txType = TextFormatter.getBold(this.record.type);
     const txHash = TextFormatter.getTxHashHyperLinkNotify(this.record.txHash);
 
-    const finalMessage =
-      `Name: ${name}\nWallet: ${walletAddress}\n` + message + `\n\nTransaction Type: ${txType} \n\n${txHash}`;
-    return finalMessage;
+    console.log("if it has an erc20 print the contract address (CA)");
+    const token = this.record.ERC20Records[0];
+    if (token) {
+      const CA = TextFormatter.getMonoSpace(this.record.ERC20Records[0].token?.address);
+      return `Name: ${name}\n${walletAddress}\n` + message + `\n\nCA: ${CA}\n\n${txHash}`;
+    }
+
+    return `Name: ${name}\n${walletAddress}\n` + message + `\n\n${txHash}`;
   }
 
   private getMessages(): string[] | undefined {

@@ -48,14 +48,18 @@ const StartServer = () => {
   app.use(cookieParser());
 
   /**Routes */
-  app.post("/api/v1/notify/receiveNotification", async (req: Request, res: Response) => {
-    const transaction = req.body.event.activity[0];
-    console.log("\nreq.body.event.activity[0]:\n", transaction);
+  app.post("/api/v1/notify/receiveNotification", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const transaction = req.body.event.activity[0];
+      console.log("\nreq.body.event.activity[0]:\n", transaction);
 
-    const receiver = new Receiver();
-    await receiver.handleReceiveNotification(transaction);
+      const receiver = new Receiver();
+      await receiver.handleReceiveNotification(transaction);
 
-    res.status(200).json({ message: "ok" });
+      res.status(200).json({ message: "ok" });
+    } catch (err: unknown) {
+      next(err);
+    }
   });
 
   /**Healthcheck */

@@ -1,5 +1,4 @@
 import { google } from "googleapis";
-import * as schedule from "node-schedule";
 import { ITraderInfo } from "./interfaces";
 import { DotenvConfig } from "../../../config/env.config";
 

@@ -2,11 +2,12 @@ import { Document, Schema, model } from "mongoose";
 
 export interface ITokenPosition extends Document {
   buyCounter: number;
-  totalBuyAmount: number;
+  totalBuyAmountETH: number;
   currentHoldings: number;
+  totalSellAmountETH: number;
 }
 
-interface ITrader extends Document {
+export interface ITrader extends Document {
   name: string;
   address: string;
   positions: Map<string, ITokenPosition>;
@@ -14,8 +15,9 @@ interface ITrader extends Document {
 
 const tokenPositionSchema = new Schema<ITokenPosition>({
   buyCounter: { type: Number, required: true, default: 0 },
-  totalBuyAmount: { type: Number, required: true, default: 0 },
+  totalBuyAmountETH: { type: Number, required: true, default: 0 },
   currentHoldings: { type: Number, required: true, default: 0 },
+  totalSellAmountETH: { type: Number, required: true, default: 0 },
 });
 
 const traderSchema = new Schema<ITrader>({
