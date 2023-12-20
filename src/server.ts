@@ -8,6 +8,8 @@ import { Receiver } from "./services/receive-endpoint/receiver.service";
 import mongoose from "mongoose";
 import Logger from "./utils/logger/winston-logger";
 import { schedulesChecks } from "./services/notification-control/notif.service";
+import { decideType } from "./services/receive-webhook/decide-type";
+import { getMsgInfo } from "./services/receive-webhook/extract-data";
 
 const envConfig = DotenvConfig.getInstance();
 
@@ -51,10 +53,11 @@ const StartServer = () => {
   app.post("/api/v1/notify/receiveNotification", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const transaction = req.body.event.activity[0];
-      console.log("\nreq.body.event.activity[0]:\n", transaction);
+      console.log("Transaction received succesfsully");
 
-      const receiver = new Receiver();
-      await receiver.handleReceiveNotification(transaction);
+      const info = await decideType(transaction);
+      const dataToSend = await getMsgInfo(info);
+      await notifyTelegram(dataToSend, info.type);
 
       res.status(200).json({ message: "ok" });
     } catch (err: unknown) {

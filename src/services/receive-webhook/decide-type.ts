@@ -1,19 +1,21 @@
 import { ITrader, TraderModel } from "../../db/notify.model";
 import { NotifyConfig } from "../../../config/notify.config";
 import { ethers } from "ethers";
-import { isERC20Contract } from "./utils/utils";
+import { ERC20ABI } from "../../../static/erc20.abi";
 
-type txtype = "BUY" | "SELL" | "RECEIVEETH" | "SENDETH" | "SENDTOKEN" | "RECEIVETOKEN";
+export type txtype = "BUY" | "SELL" | "RECEIVEETH" | "SENDETH" | "SENDTOKEN" | "RECEIVETOKEN";
 
 const config = NotifyConfig.getInstance();
 const provider = config.getProvider();
 
-interface IDecideTypeResult {
+export interface IDecideTypeResult {
   type: txtype;
-  trackedTrader: string; // address
+  trader: ITrader;
+  transaction: ethers.Transaction;
+  receipt: ethers.providers.TransactionReceipt;
 }
 
-async function decideType(alchemyTransaction: any): Promise<IDecideTypeResult> {
+export async function decideType(alchemyTransaction: any): Promise<IDecideTypeResult> {
   // fetch with ethers.js for more consistent and better outlook on the tx data
   console.log("Fetching ethers Transaction and Receipt");
   try {
@@ -46,30 +48,29 @@ async function decideType(alchemyTransaction: any): Promise<IDecideTypeResult> {
           if (trader === undefined) {
             // if it's not null then it's a Transfer event with a to and from..
             // if to address in the event is trader then this means he's receing erc20 tokens..
-            const trader = await TraderModel.findOne({ address: decodedLog.args[1] });
+            const trader = await TraderModel.findOne({ address: decodedLog.args.to });
 
             if (trader) {
-              return { type: "RECEIVETOKEN", trackedTrader: trader.address };
+              return { type: "RECEIVETOKEN", trader, transaction: tx, receipt: receipt };
             } else {
               throw new Error(`tracked address isn't even in the event of transfer to address, no tracked address found, exit`);
             }
 
             // else if tracked address is the from, check if it's sending erc20 tokens..
-          } else if (trader.address === tx.from && trader.address === decodedLog.args[2])
-            return { type: "SENDTOKEN", trackedTrader: tx.from };
+          } else if (trader.address === tx.from && trader.address === decodedLog.args.from)
+            return { type: "SENDTOKEN", trader, transaction: tx, receipt: receipt };
         }
 
         // if not an erc20 but a contract.. check if there is log where
       } else {
-        // if there are events
-        if (receipt.logs.length !== 0) {
-          // loop all events and check if there is a 'swap' event on v2 or v3
-          if (isThereSwapEvent(receipt.logs) === true) {
-            // now determine if it's a buy or sell...
-            // if eth is sent in the tx then it's BUY, else a sell
-            if (tx.value.toString() === "0") return { type: "SELL", trackedTrader: tx.from };
-            return { type: "BUY", trackedTrader: tx.from };
-          }
+        // loop all events and check if there is a 'swap' event on v2 or v3
+        if (isThereSwapEvent(receipt.logs) === true) {
+          if (trader === undefined)
+            throw new Error("Not interacting with a contract and it's tracked trader is undefined.. Exit gracefully...");
+          // now determine if it's a buy or sell...
+          // if eth is sent in the tx then it's BUY, else a sell
+          if (tx.value.toString() === "0") return { type: "SELL", trader, transaction: tx, receipt: receipt };
+          return { type: "BUY", trader, transaction: tx, receipt: receipt };
         }
       }
       // else if tx.to is an EOA
@@ -77,8 +78,8 @@ async function decideType(alchemyTransaction: any): Promise<IDecideTypeResult> {
       if (trader === undefined)
         throw new Error(`To address isn't a contract and no tracked EOA was found in from or to addresses.. Exiting gracefully`);
 
-      if (trader.address === tx.from) return { type: "SENDETH", trackedTrader: tx.from };
-      if (trader.address === tx.to) return { type: "RECEIVEETH", trackedTrader: tx.to };
+      if (trader.address === tx.from) return { type: "SENDETH", trader, transaction: tx, receipt: receipt };
+      if (trader.address === tx.to) return { type: "RECEIVEETH", trader, transaction: tx, receipt: receipt };
     }
 
     throw new Error(`After whole analysis no tracked address was found in the transaction! Exiting gracefully..`);
@@ -140,4 +141,20 @@ function isThereSwapEvent(logs: ethers.providers.Log[]) {
     if (log.topics[0] == swapEventSignatureV2 || log.topics[0] == swapEventSignatureV3) return true;
   }
   return false;
+}
+
+async function isERC20Contract(address: string): Promise<boolean> {
+  try {
+    const contract = new ethers.Contract(address, ERC20ABI, provider);
+
+    const [totalSupply, balance, decimals] = await Promise.all([
+      contract.totalSupply(),
+      contract.balanceOf("0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"), // Example address (UNI)
+      contract.decimals(),
+    ]);
+
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
