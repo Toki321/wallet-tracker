@@ -16,6 +16,8 @@ export interface IDecideTypeResult {
 }
 
 export async function decideType(alchemyTransaction: any): Promise<IDecideTypeResult> {
+  console.log(alchemyTransaction);
+
   // fetch with ethers.js for more consistent and better outlook on the tx data
   console.log("Fetching ethers Transaction and Receipt");
   try {
@@ -23,6 +25,7 @@ export async function decideType(alchemyTransaction: any): Promise<IDecideTypeRe
       provider.getTransaction(alchemyTransaction.hash),
       provider.getTransactionReceipt(alchemyTransaction.hash),
     ]);
+    console.log(tx, receipt);
 
     // if it's a contract deployment this is null I think, hence irrelevant
     if (!tx.to) throw new Error("Tx.to is null so this tx is of no interest");

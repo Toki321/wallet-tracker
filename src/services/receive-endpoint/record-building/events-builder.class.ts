@@ -68,12 +68,7 @@ export class EthErc20RecordBuilder extends RecordBuilder {
     return this.createApprovalRecord(tokenInfo, owner, spender, readableAmount);
   }
 
-  private createApprovalRecord(
-    token: ITokenInfo | undefined,
-    owner: string,
-    spender: string,
-    amount: string
-  ): IRecordApproval {
+  private createApprovalRecord(token: ITokenInfo | undefined, owner: string, spender: string, amount: string): IRecordApproval {
     const record: IRecordApproval = {
       token,
       owner,
@@ -131,8 +126,8 @@ export class EthErc20RecordBuilder extends RecordBuilder {
       return amount.toString();
     }
     const formattedAmount = utils.formatUnits(amount, decimals);
-    const roundedAmount = parseFloat(formattedAmount).toFixed(4);
-    return roundedAmount;
+    const formattedAmount = parseFloat(formattedAmount).toFixed(4);
+    return formattedAmount;
   }
 
   private createERC20Record(

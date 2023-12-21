@@ -1,6 +1,8 @@
 import { BigNumber, ethers, providers, utils } from "ethers";
 import { NotifyConfig } from "../../../../config/notify.config";
 import { ERC20ABI } from "../../../../static/erc20.abi";
+import { DotenvConfig } from "../../../../config/env.config";
+import axios from "axios";
 
 const config = NotifyConfig.getInstance();
 const provider = config.getProvider();
@@ -38,19 +40,22 @@ export async function getTokenInfoBuy(logs: providers.Log[], trader: string) {
       // if to address of event is tracked address he is receiving tokens from his swap!
       if (decodedLog.args.to === trader) {
         tokenAddress = log.address;
-        tokenAmount.add(decodedLog.args.amount); // is a big number..
+        tokenAmount = tokenAmount.add(decodedLog.args.amount); // is a big number..
       }
     } catch (err) {
       continue;
     }
   }
 
+  const price = await getTokenPrice(tokenAddress);
   const { decimals, symbol } = await getSymbolDecimals(tokenAddress);
 
   const formattedAmount = ethers.utils.formatUnits(tokenAmount, decimals);
-  const roundedAmount = parseFloat(formattedAmount).toFixed(4);
+  const finalAmount = parseFloat(formattedAmount).toFixed(4);
 
-  return { tokenAddress, roundedAmount, symbol };
+  console.log("Exiting getTokenInfoBuy. Got this info:", tokenAddress, finalAmount, symbol, price);
+
+  return { tokenAddress, finalAmount, symbol, price };
 }
 
 async function getSymbolDecimals(address: string) {
@@ -103,21 +108,28 @@ export async function getTokenInfoSell(logs: providers.Log[], trader: string) {
   for (const log of logs) {
     try {
       const decodedLog = iface.parseLog(log);
+      console.log("Decoded log:", decodedLog);
       if (decodedLog.args.from === trader) {
+        console.log("From address is the same as trader address");
+        console.log("Decoded args", decodedLog.args);
         tokenAddress = log.address;
-        tokenAmount.add(decodedLog.args.amount); // is a big number..
+        tokenAmount = tokenAmount.add(decodedLog.args.value);
+        console.log("\n added: " + decodedLog.args.value + "\n");
       }
     } catch (err) {
       continue;
     }
   }
 
+  const price = await getTokenPrice(tokenAddress);
   const { decimals, symbol } = await getSymbolDecimals(tokenAddress);
 
   const formattedAmount = ethers.utils.formatUnits(tokenAmount, decimals);
-  const roundedAmount = parseFloat(formattedAmount).toFixed(4);
+  const finalAmount = parseFloat(formattedAmount).toFixed(4);
 
-  return { tokenAddress, roundedAmount, symbol };
+  console.log("Exiting getTokenInfoBuy. Got this info:", tokenAddress, finalAmount, symbol, price);
+
+  return { tokenAddress, finalAmount, symbol, price };
 }
 
 export async function getCurrentTokenHoldings(tokenAddress: string, traderAddress: string) {
@@ -137,7 +149,8 @@ export async function getCurrentTokenHoldings(tokenAddress: string, traderAddres
 
 export function getPercentage(num1: number, num2: number): number {
   if (num2 === 0) return 0;
-  return (num1 / num2) * 100;
+  const num = (num1 / num2) * 100;
+  return Math.round(num);
 }
 
 export function calculatePnLPercentage(buyAmountUsd: number, sellAmountUsd: number) {
@@ -145,5 +158,36 @@ export function calculatePnLPercentage(buyAmountUsd: number, sellAmountUsd: numb
     return 0; // Prevent division by zero if buyAmountUsd is 0
   }
   const pnl = sellAmountUsd - buyAmountUsd;
-  return (pnl / buyAmountUsd) * 100;
+  const num = (pnl / buyAmountUsd) * 100;
+  return Math.round(num);
+}
+
+async function getTokenPrice(tokenAddress: string) {
+  const url = "https://api.defined.fi/";
+  try {
+    const result = await axios.post(
+      url,
+      {
+        query: `{
+                getTokenPrices(
+                  inputs: [
+                    { address: "${tokenAddress}", networkId: 1 }
+                  ]
+                ) {
+                  priceUsd
+                }
+              }`,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": DotenvConfig.getInstance().get("DEFINEDFI_API_KEY"),
+        },
+      }
+    );
+    return result.data.data.getTokenPrices[0].priceUsd;
+  } catch (err: any) {
+    console.log(`Error fetching price for ${tokenAddress}`, err);
+    return 0;
+  }
 }

@@ -7,6 +7,8 @@ import Logger from "../../utils/logger/winston-logger";
 
 const provider = NotifyConfig.getInstance().getProvider();
 
+let lastTxHash = "";
+
 export class Receiver {
   static lastTxHash: string;
 

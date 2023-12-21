@@ -4,12 +4,12 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import { DotenvConfig } from "../config/env.config";
-import { Receiver } from "./services/receive-endpoint/receiver.service";
 import mongoose from "mongoose";
 import Logger from "./utils/logger/winston-logger";
 import { schedulesChecks } from "./services/notification-control/notif.service";
 import { decideType } from "./services/receive-webhook/decide-type";
 import { getMsgInfo } from "./services/receive-webhook/extract-data";
+import { getMessageForTelegram, notifyChannel } from "./services/receive-webhook/telegram";
 
 const envConfig = DotenvConfig.getInstance();
 
@@ -49,17 +49,30 @@ const StartServer = () => {
   app.use(compression());
   app.use(cookieParser());
 
+  const notifiedTransactions = new Map<string, boolean>();
   /**Routes */
   app.post("/api/v1/notify/receiveNotification", async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const transaction = req.body.event.activity[0];
+      const alchemyTransaction = req.body.event.activity[0];
+
+      // alchemy problem with repeatable notifications about same txs solved with hash map
+      const prevTransaction = notifiedTransactions.get(alchemyTransaction.hash);
+
+      if (prevTransaction === true) {
+        throw new Error("ok");
+      }
+
+      notifiedTransactions.set(alchemyTransaction.hash, true);
+
       console.log("Transaction received succesfsully");
+      console.log("req.body:", req.body);
 
-      const info = await decideType(transaction);
+      const info = await decideType(alchemyTransaction);
       const dataToSend = await getMsgInfo(info);
-      await notifyTelegram(dataToSend, info.type);
+      const msg = await getMessageForTelegram(dataToSend, info.type);
+      await notifyChannel(msg);
 
-      res.status(200).json({ message: "ok" });
+      res.status(200).json({});
     } catch (err: unknown) {
       next(err);
     }
@@ -70,7 +83,10 @@ const StartServer = () => {
 
   /** Error handling */
   app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error(error); // Log error stack trace to the console
+    if (error.message === "ok") console.log("repeat - notif. skip");
+    else {
+      console.error(error); // Log error stack trace to the console
+    }
     res.status(500).json({ message: "Error has occured.." });
   });
 

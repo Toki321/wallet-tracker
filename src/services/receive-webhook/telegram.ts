@@ -1,12 +1,35 @@
+import axios from "axios";
+import { DotenvConfig } from "../../../config/env.config";
 import { txtype } from "./decide-type";
 import { IBuyInfo, IReceiveETH, ISellInfo, ISendETH } from "./extract-data";
 import { getNameHyperLinkNotify, getTxHashHyperLinkNotify } from "./utils/text-utils";
 
-// 🟢🔴
+export async function notifyChannel(message: string) {
+  console.log("Entered notifyChannel");
+  console.log("message for notifying:", message);
 
-export async function notifyTelegram(data: IBuyInfo | ISellInfo | ISendETH | IReceiveETH, type: txtype): Promise<string> {
-  let line1, line2, line3, line4;
+  const dotenv = DotenvConfig.getInstance();
+
+  const channelId = dotenv.get("TG_GROUP_CHAT_ID");
+  const botToken = dotenv.get("BOT_TOKEN");
+
+  try {
+    await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      chat_id: channelId,
+      text: message,
+      disable_web_page_preview: true,
+      parse_mode: "HTML",
+    });
+  } catch (err) {
+    console.error("Error in notifyChannel function..");
+    throw err;
+  }
+}
+
+export async function getMessageForTelegram(data: IBuyInfo | ISellInfo | ISendETH | IReceiveETH, type: txtype): Promise<string> {
+  let line1, line2, line3, line4, line5;
   let nameHyperLink = "";
+
   switch (type) {
     case "BUY":
       console.log("Entered BUY in notifyTelegram");
@@ -15,36 +38,60 @@ export async function notifyTelegram(data: IBuyInfo | ISellInfo | ISendETH | IRe
       nameHyperLink = getNameHyperLinkNotify(data.traderName, data.traderAddress);
       line1 = `🟢 <b>BUY ALERT</b> - ${nameHyperLink}`;
 
-      line2 = `💰 Bought <b>${data.ethAmount}</b> (${data.usdAmount}$) for <b>${data.tokenAmount} ${data.tokenSymbol}</b> - (Buy #${data.buyCount})`;
+      line2 = `💰 Bought <b>${data.ethAmount}</b> (${data.usdAmount}$) for <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice} - (Buy #${data.buyCount})`;
 
       line3 = `<b>${data.tokenSymbol}:</b> <code>${data.traderAddress}</code>`;
 
       line4 = getTxHashHyperLinkNotify(data.txHash);
 
-      return line1 + "\n" + line2 + "\n" + line3 + "\n" + line4;
+      return line1 + "\n\n" + line2 + "\n\n" + line3 + "\n\n" + line4;
     case "SELL":
       console.log("Entered SELL in notifyTelegram");
       data = data as ISellInfo;
 
       nameHyperLink = getNameHyperLinkNotify(data.traderName, data.traderAddress);
-      line1 = `🟢 <b>BUY ALERT</b> - ${nameHyperLink}`;
+      line1 = `🔴 <b>SELL ALERT</b> - ${nameHyperLink}`;
 
-      line2 = `💰 Bought <b>${data.ethAmount}</b> (${data.usdAmount}$) for <b>${data.tokenAmount} ${data.tokenSymbol}</b> - (Buy #${data.buyCount})`;
+      line2 = `💰 Sold <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice} for ${data.ethAmount} (${data.usdAmount}$)`; // need price here
 
-      line3 = `<b>${data.tokenSymbol}:</b> <code>${data.traderAddress}</code>`;
+      line3 = `Accounting for ${data.percentSold}% of his entire ${data.tokenSymbol} position`;
+
+      line4 = `<b>${data.tokenSymbol}:</b> <code>${data.traderAddress}</code>`;
+
+      line5 = getTxHashHyperLinkNotify(data.txHash);
+
+      return line1 + "\n\n" + line2 + "\n\n" + line3 + "\n\n" + line4 + "\n\n" + line5;
+
+    case "RECEIVEETH":
+      console.log("Entered RECEIVEETH in notifyTelegram");
+      data = data as IReceiveETH;
+
+      nameHyperLink = getNameHyperLinkNotify(data.traderName, data.traderAddress);
+      line1 = `🤑 <b>TRANSFER ALERT</b> - ${nameHyperLink}`;
+
+      line2 = `Received <b>${data.ethAmount} ETH</b> (${data.usdAmount}$)`;
+
+      line3 = `from <code>${data.from}</code>`;
 
       line4 = getTxHashHyperLinkNotify(data.txHash);
 
-      return line1 + "\n" + line2 + "\n" + line3 + "\n" + line4;
+      return line1 + "\n\n" + line2 + "\n\n" + line3 + "\n\n" + line4;
 
-      break;
-    case "RECEIVEETH":
-      // Handle RECEIVEETH transaction
-      console.log("Handling RECEIVEETH transaction");
-      break;
     case "SENDETH":
-      // Handle SENDETH transaction
-      console.log("Handling SENDETH transaction");
-      break;
+      console.log("Entered SENDETH in notifyTelegram");
+      data = data as ISendETH;
+
+      nameHyperLink = getNameHyperLinkNotify(data.traderName, data.traderAddress);
+      line1 = `💸 <b>TRANSFER ALERT</b> - ${nameHyperLink}`;
+
+      line2 = `Sent <b>${data.ethAmount} ETH</b> (${data.usdAmount}$)`;
+
+      line3 = `to <code>${data.to}</code>`;
+
+      line4 = getTxHashHyperLinkNotify(data.txHash);
+
+      return line1 + "\n\n" + line2 + "\n\n" + line3 + "\n\n" + line4;
   }
+
+  throw new Error("Error, no switch case was entered in getMessageForTelegram");
 }

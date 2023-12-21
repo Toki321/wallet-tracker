@@ -1,4 +1,3 @@
-import { BigNumber, ethers, providers } from "ethers";
 import { IDecideTypeResult } from "./decide-type";
 import {
   calculatePnLPercentage,
@@ -20,6 +19,7 @@ export interface IBuyInfo {
   txHash: string;
   traderName: string;
   traderAddress: string;
+  tokenPrice: number;
 }
 
 export interface ISellInfo {
@@ -32,6 +32,7 @@ export interface ISellInfo {
   txHash: string;
   traderName: string;
   traderAddress: string;
+  tokenPrice: number;
 }
 
 export interface ISendETH {
@@ -66,6 +67,7 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         txHash: info.receipt.transactionHash,
         traderName: info.trader.name,
         traderAddress: info.trader.address,
+        tokenPrice: 0,
       };
       try {
         const ethAmount = weiToEther(info.transaction.value);
@@ -74,9 +76,10 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         const usdAmount = await ethAmountToUsd(ethAmount);
         buyResult.usdAmount = usdAmount;
 
-        const { tokenAddress, symbol, roundedAmount } = await getTokenInfoBuy(info.receipt.logs, info.trader.address);
-        buyResult.tokenAmount = roundedAmount;
+        const { tokenAddress, symbol, finalAmount, price } = await getTokenInfoBuy(info.receipt.logs, info.trader.address);
+        buyResult.tokenAmount = finalAmount;
         buyResult.tokenSymbol = symbol;
+        buyResult.tokenPrice = price;
 
         // proceed with changes to db
         let tokenPosition = info.trader.positions.get(tokenAddress);
@@ -109,6 +112,7 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         txHash: info.receipt.transactionHash,
         traderName: info.trader.name,
         traderAddress: info.trader.address,
+        tokenPrice: 0,
       };
 
       try {
@@ -118,9 +122,10 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         const usdAmount = await ethAmountToUsd(ethAmount);
         sellResult.usdAmount = usdAmount;
 
-        const { tokenAddress, symbol, roundedAmount } = await getTokenInfoSell(info.receipt.logs, info.trader.address);
-        sellResult.tokenAmount = roundedAmount;
+        const { tokenAddress, symbol, finalAmount, price } = await getTokenInfoSell(info.receipt.logs, info.trader.address);
+        sellResult.tokenAmount = finalAmount;
         sellResult.tokenSymbol = symbol;
+        sellResult.tokenPrice = price;
 
         // proceed with db changes
         let tokenPosition = info.trader.positions.get(tokenAddress);
@@ -135,9 +140,8 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         const percentSold = getPercentage(usdAmount, tokenPosition.totalBuyAmountUSD);
         sellResult.percentSold = percentSold;
 
-        if (percentSold > 95) {
+        if (percentSold > 95)
           sellResult.pnl = calculatePnLPercentage(tokenPosition.totalBuyAmountUSD, tokenPosition.totalSellAmountUSD);
-        }
 
         await tokenPosition.save();
         await info.trader.save();

@@ -15,8 +15,8 @@ export abstract class RecordBuilder {
 
   protected formatWeiToETH(amount: ethers.BigNumber): string {
     const amountETH = utils.formatEther(amount);
-    const roundedAmountETH = parseFloat(amountETH).toFixed(4);
-    return roundedAmountETH;
+    const formattedAmountETH = parseFloat(amountETH).toFixed(4);
+    return formattedAmountETH;
   }
 
   protected createETHRecord(
