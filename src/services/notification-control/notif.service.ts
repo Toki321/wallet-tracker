@@ -5,7 +5,7 @@ import { fetchTradersFromSheet } from "./google-sheet";
 
 export const main = async () => {
   const tradersFromSpreadSheet = await fetchTradersFromSheet();
-  console.log("fetched tradersFromSpreadSheet:", tradersFromSpreadSheet);
+  // console.log("fetched tradersFromSpreadSheet:", tradersFromSpreadSheet);
 
   const newTraders = [];
 
@@ -13,18 +13,18 @@ export const main = async () => {
   for (const trader of tradersFromSpreadSheet) {
     map.set(trader.name, true);
     const dbTrader = await TraderModel.findOne({ name: trader.name, address: trader.address }).exec();
-    console.log("fetched dbTrader:", dbTrader);
+    // console.log("fetched dbTrader:", dbTrader);
     if (!dbTrader) {
       console.log("Non existent. pushing to newTraders arr");
       newTraders.push(trader);
     }
   }
 
-  console.log("saving to db and webhook..");
+  // console.log("saving new traders to db and webhook..");
   await AlchemyHandler.addAddressesForTracking(newTraders);
-  console.log("saved successfully");
+  // console.log("saved successfully");
 
-  console.log("Fetching ALL traders from db again, this time should be all from spreadsheet in too");
+  // console.log("Fetching ALL traders from db again..");
   const tradersFromDB = await TraderModel.find({}).exec();
   // console.log("Fetched", tradersFromDB);
   const deletedTraders = [];
@@ -39,9 +39,9 @@ export const main = async () => {
     }
   }
 
-  console.log("Traders to be deleted:", deletedTraders);
+  // console.log("Traders to be deleted:", deletedTraders);
   await AlchemyHandler.removeAddressesForTracking(deletedTraders);
-  console.log("gg");
+  // console.log("All good");
 };
 
 export const schedulesChecks = () => {
