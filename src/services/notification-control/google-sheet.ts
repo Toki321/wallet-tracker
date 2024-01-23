@@ -19,6 +19,7 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: "v4", auth: auth });
 
 export async function fetchTradersFromSheet(): Promise<ITraderInfo[]> {
+  console.log(`Fetching traders from sheet...`);
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: spreadsheetId,

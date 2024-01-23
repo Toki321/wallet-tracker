@@ -20,36 +20,36 @@ export const main = async () => {
     }
   }
 
-  console.log("saving to db and webhook");
+  console.log("saving to db and webhook..");
   await AlchemyHandler.addAddressesForTracking(newTraders);
   console.log("saved successfully");
 
-  console.log("Fetching ALL traderes from db again, this time should be all from spreadsheet in too");
+  console.log("Fetching ALL traders from db again, this time should be all from spreadsheet in too");
   const tradersFromDB = await TraderModel.find({}).exec();
-  console.log("Fetched", tradersFromDB);
+  // console.log("Fetched", tradersFromDB);
   const deletedTraders = [];
 
   for (const trader of tradersFromDB) {
-    const formSpreadsheet = map.get(trader.name);
-    console.log("fromSpreadsheet:", formSpreadsheet);
+    const isTraderFromSpreadsheet = map.get(trader.name);
+    // console.log("isTraderFromSpreadsheet:", isTraderFromSpreadsheet);
     // if NOT in spreadsheet but IN db. DELETE.
-    if (formSpreadsheet == null) {
-      console.log("Doesn't exist in db, pushing in delete arr", formSpreadsheet);
+    if (isTraderFromSpreadsheet == null) {
+      console.log("Trader has been deleted from Spreadsheet, deleting from db: ", trader.name);
       deletedTraders.push(trader);
     }
   }
 
-  console.log("deleteing..");
-  console.log("deletarr:", deletedTraders);
+  console.log("Traders to be deleted:", deletedTraders);
   await AlchemyHandler.removeAddressesForTracking(deletedTraders);
   console.log("gg");
 };
 
 export const schedulesChecks = () => {
   console.log("Starting scheduled job..");
-  schedule.scheduleJob("*/1* * * *", async function () {
+  schedule.scheduleJob("*/1 * * * *", async function () {
+    console.log("Scheduler triggered, calling main()");
     main()
-      .then()
-      .catch((err) => console.error(err));
+      .then(() => console.log("main() executed successfully"))
+      .catch((err) => console.error("Error in main():", err));
   });
 };
