@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "start:prod": "npm run build && pm2 start build/src/server.js --name wallet-tracker",
+    "start:prod": "npm run build && cross-env NODE_ENV=production pm2 start build/src/server.js --name wallet-tracker",
     "start": "tsc && nodemon build/src/server.js",
-    "build": "cross-env NODE_ENV=production rm -rf build/ && tsc",
+    "build": "rm -rf build/ && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development nodemon",
     "dev-prod": "cross-env NODE_ENV=production nodemon"
