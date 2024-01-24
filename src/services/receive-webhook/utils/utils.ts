@@ -39,8 +39,10 @@ export async function getTokenInfoBuy(logs: providers.Log[], trader: string) {
       const decodedLog = iface.parseLog(log);
       // if to address of event is tracked address he is receiving tokens from his swap!
       if (decodedLog.args.to === trader) {
+        console.log("To address is the same as trader address");
+        console.log("Decoded args", decodedLog.args);
         tokenAddress = log.address;
-        tokenAmount = tokenAmount.add(decodedLog.args.amount); // is a big number..
+        tokenAmount = tokenAmount.add(decodedLog.args.value);
       }
     } catch (err) {
       continue;
@@ -108,13 +110,11 @@ export async function getTokenInfoSell(logs: providers.Log[], trader: string) {
   for (const log of logs) {
     try {
       const decodedLog = iface.parseLog(log);
-      console.log("Decoded log:", decodedLog);
       if (decodedLog.args.from === trader) {
         console.log("From address is the same as trader address");
         console.log("Decoded args", decodedLog.args);
         tokenAddress = log.address;
         tokenAmount = tokenAmount.add(decodedLog.args.value);
-        console.log("\n added: " + decodedLog.args.value + "\n");
       }
     } catch (err) {
       continue;
