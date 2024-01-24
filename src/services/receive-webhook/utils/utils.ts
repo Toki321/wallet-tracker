@@ -9,9 +9,9 @@ const provider = config.getProvider();
 
 export async function ethAmountToUsd(amount: number): Promise<number> {
   try {
-    // Fetch the current price of ETH in USD from CoinGecko API
-    const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
-    const data = await response.json();
+    // Fetch the current price of ETH in USD from CoinGecko API using Axios
+    const response = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
+    const data = response.data;
 
     // Extract the ETH price in USD
     const ethPriceInUsd = data.ethereum.usd;
