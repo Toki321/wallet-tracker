@@ -38,7 +38,7 @@ export async function getMessageForTelegram(data: IBuyInfo | ISellInfo | ISendET
       nameHyperLink = getNameHyperLinkNotify(data.traderName, data.traderAddress);
       line1 = `🟢 <b>BUY ALERT</b> - ${nameHyperLink}`;
 
-      line2 = `💰 Bought <b>${data.ethAmount}</b> (${data.usdAmount}$) for <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice} - (Buy #${data.buyCount})`;
+      line2 = `💰 Bought <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice.toFixed(4)}$ for <b>${data.ethAmount}</b> ETH (${data.usdAmount}$)  - (Buy #${data.buyCount})`;
 
       line3 = `<b>${data.tokenSymbol}:</b> <code>${data.traderAddress}</code>`;
 
@@ -52,7 +52,7 @@ export async function getMessageForTelegram(data: IBuyInfo | ISellInfo | ISendET
       nameHyperLink = getNameHyperLinkNotify(data.traderName, data.traderAddress);
       line1 = `🔴 <b>SELL ALERT</b> - ${nameHyperLink}`;
 
-      line2 = `💰 Sold <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice} for ${data.ethAmount} (${data.usdAmount}$)`; // need price here
+      line2 = `💰 Sold <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice.toFixed(4)}$ for ${data.ethAmount} ETH (${data.usdAmount}$)`; // need price here
 
       line3 = `Accounting for ${data.percentSold}% of his entire ${data.tokenSymbol} position`;
 
