@@ -13,26 +13,28 @@ import { ITrader, TokenPositionModel, TraderModel } from "../../db/notify.model"
 export interface IBuyInfo {
   ethAmount: number;
   usdAmount: number;
-  tokenAmount: string;
+  tokenAddress: string;
   tokenSymbol: string;
+  tokenAmount: string;
+  tokenPrice: number;
   buyCount: number;
   txHash: string;
   traderName: string;
   traderAddress: string;
-  tokenPrice: number;
 }
 
 export interface ISellInfo {
   ethAmount: number;
   usdAmount: number;
-  tokenAmount: string;
+  tokenAddress: string;
   tokenSymbol: string;
+  tokenAmount: string;
+  tokenPrice: number;
   pnl?: number;
   percentSold: number;
   txHash: string;
   traderName: string;
   traderAddress: string;
-  tokenPrice: number;
 }
 
 export interface ISendETH {
@@ -61,13 +63,14 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
       const buyResult: IBuyInfo = {
         ethAmount: 0,
         usdAmount: 0,
-        tokenAmount: "",
+        tokenAddress: "",
         tokenSymbol: "",
+        tokenAmount: "",
+        tokenPrice: 0,
         buyCount: 0,
         txHash: info.receipt.transactionHash,
         traderName: info.trader.name,
         traderAddress: info.trader.address,
-        tokenPrice: 0,
       };
       try {
         const ethAmount = weiToEther(info.transaction.value);
@@ -77,8 +80,9 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         buyResult.usdAmount = usdAmount;
 
         const { tokenAddress, symbol, finalAmount, price } = await getTokenInfoBuy(info.receipt.logs, info.trader.address);
-        buyResult.tokenAmount = finalAmount;
+        buyResult.tokenAddress = tokenAddress;
         buyResult.tokenSymbol = symbol;
+        buyResult.tokenAmount = finalAmount;
         buyResult.tokenPrice = price;
 
         // proceed with changes to db
@@ -106,13 +110,14 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
       const sellResult: ISellInfo = {
         ethAmount: 0,
         usdAmount: 0,
-        tokenAmount: "",
+        tokenAddress: "",
         tokenSymbol: "",
+        tokenAmount: "",
+        tokenPrice: 0,
         percentSold: 0,
         txHash: info.receipt.transactionHash,
         traderName: info.trader.name,
         traderAddress: info.trader.address,
-        tokenPrice: 0,
       };
 
       try {
@@ -123,6 +128,7 @@ export async function getMsgInfo(info: IDecideTypeResult): Promise<IBuyInfo | IS
         sellResult.usdAmount = usdAmount;
 
         const { tokenAddress, symbol, finalAmount, price } = await getTokenInfoSell(info.receipt.logs, info.trader.address);
+        sellResult.tokenAddress = tokenAddress;
         sellResult.tokenAmount = finalAmount;
         sellResult.tokenSymbol = symbol;
         sellResult.tokenPrice = price;

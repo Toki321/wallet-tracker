@@ -40,7 +40,7 @@ export async function getMessageForTelegram(data: IBuyInfo | ISellInfo | ISendET
 
       line2 = `💰 Bought <b>${data.tokenAmount} ${data.tokenSymbol}</b> @${data.tokenPrice.toFixed(4)}$ for <b>${data.ethAmount}</b> ETH (${data.usdAmount}$)  - (Buy #${data.buyCount})`;
 
-      line3 = `<b>${data.tokenSymbol}:</b> <code>${data.traderAddress}</code>`;
+      line3 = `<b>${data.tokenSymbol}:</b> <code>${data.tokenAddress}</code>`;
 
       line4 = getTxHashHyperLinkNotify(data.txHash);
 
@@ -56,7 +56,7 @@ export async function getMessageForTelegram(data: IBuyInfo | ISellInfo | ISendET
 
       line3 = `Accounting for ${data.percentSold}% of his entire ${data.tokenSymbol} position`;
 
-      line4 = `<b>${data.tokenSymbol}:</b> <code>${data.traderAddress}</code>`;
+      line4 = `<b>${data.tokenSymbol}:</b> <code>${data.tokenAddress}</code>`;
 
       line5 = getTxHashHyperLinkNotify(data.txHash);
 
